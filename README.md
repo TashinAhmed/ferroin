@@ -6,8 +6,7 @@ GraphKAN for Small Molecule-Protein Interaction Predictions
   <img src="ferroin.png" alt="Ferroin GraphKAN" width="250" height="250">
 </p>
 
-# ferroin
-GraphKAN for Small Molecule-Protein Interaction Predictions
+
 
 OpenReview link. Read from [here](https://openreview.net/forum?id=d5uz4wrYeg&referrer=%5Bthe%20profile%20of%20Tashin%20Ahmed%5D(%2Fprofile%3Fid%3D~Tashin_Ahmed1)).
 
