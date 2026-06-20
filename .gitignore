@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+.uv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# Data / artifacts (do not commit large parquet files or model weights)
+data/
+trained_models/
+predictions/
+*.parquet
+*.pt
+*.pth
+*.csv
+!tests/*.csv
+
+# Notebooks
+.ipynb_checkpoints/
+
+# wandb
+wandb/

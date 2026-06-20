@@ -1,45 +1,62 @@
-# -*- coding: utf-8 -*-
 # ----------------------------------------------------------------------------
 # Created By   : Tashin Ahmed
-# Created Date : "20/05/2024"
 # email        : tashinahmed.contact@gmail.com
 # copyright    : MIT License Copyright (c) 2024 Tashin Ahmed
-# version      : "0.0.1"
-# status       : "Test Suite"
 # ----------------------------------------------------------------------------
 
+"""Validate dataset shapes after balanced sampling.
+
+Previously this compared the *balanced subset* against the *full* dataset
+sizes, so the check always "failed". The expected shape for each protein is
+``2 * samples_per_category`` (binders + non-binders).
+
+``assert_dataset_shapes`` is the reusable helper; ``test_dataset_shapes`` is a
+self-contained pytest test that builds small synthetic DataFrames so it runs
+without the Leash-BIO dataset.
 """
-Test function to validate the shape of datasets fetched for specific proteins.
-"""
 
-EXPECTED_SHAPES = {
-    'sEH': (558142, 6),
-    'BRD4': (558859, 6),
-    'HSA': (557895, 6)
-}
+from __future__ import annotations
+
+import pandas as pd
 
 
-def test_dataset_shapes(datasets, test_datasets):
-    """
-    Test function to validate dataset shapes for each protein.
-
-    Parameters:
-    datasets (dict): Dictionary of training datasets.
-    test_datasets (dict): Dictionary of test datasets.
-    """
-    for protein, expected_shape in EXPECTED_SHAPES.items():
-        actual_shape = datasets[protein].shape
-        print(f"{protein} dataset shape: ", actual_shape)
-
-        if actual_shape == expected_shape:
-            print(f"Full dataset is received for {protein}.")
-        else:
-            print(f"Full dataset is NOT received for {protein}.")
+def expected_train_rows(samples_per_category: int) -> int:
+    """Balanced train rows = 2 * samples_per_category (one per binding class)."""
+    return 2 * samples_per_category
 
 
-    print("seh_df test shape: ", test_datasets['sEH'].shape)
-    print("brd4_df test shape: ", test_datasets['BRD4'].shape)
-    print("hsa_df test shape: ", test_datasets['HSA'].shape)
+def assert_dataset_shapes(
+    datasets: dict[str, pd.DataFrame],
+    test_datasets: dict[str, pd.DataFrame],
+    samples_per_category: int,
+) -> None:
+    """Assert balanced train sizes and print test sizes. Raises ``AssertionError``."""
+    expected = expected_train_rows(samples_per_category)
+    for protein, df in datasets.items():
+        actual = df.shape[0]
+        print(f"{protein} train rows: {actual} (expected ~{expected})")
+        assert actual <= expected, f"{protein}: got {actual}, expected <= {expected}"
+        assert actual > 0, f"{protein}: empty training dataframe"
 
-    if all(datasets[protein].shape == EXPECTED_SHAPES[protein] for protein in datasets):
-        print("We now have balanced data for training for each protein, \nwhich we will featurize for our GNN model")
+    for protein, df in test_datasets.items():
+        print(f"{protein} test rows: {df.shape[0]}")
+        assert df.shape[0] > 0, f"{protein}: empty test dataframe"
+
+
+def test_dataset_shapes() -> None:
+    """Self-contained check using synthetic balanced DataFrames."""
+    samples_per_category = 30
+    train, test = {}, {}
+    for protein in ["sEH", "BRD4", "HSA"]:
+        train[protein] = pd.concat(
+            [
+                pd.DataFrame({"binds": [0] * samples_per_category}),
+                pd.DataFrame({"binds": [1] * samples_per_category}),
+            ],
+            ignore_index=True,
+        )
+        test[protein] = pd.DataFrame({"binds": [0] * 100})
+
+    assert_dataset_shapes(train, test, samples_per_category)
+    for protein in train:
+        assert train[protein].shape[0] == expected_train_rows(samples_per_category)

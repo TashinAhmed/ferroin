@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ferroin"
+version = "0.1.1"
+description = "GraphKAN: Graph Kolmogorov-Arnold Network for small molecule-protein binding prediction."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "Tashin Ahmed", email = "tashinahmed.contact@gmail.com" },
+    { name = "Md Habibur Rahman Sifat" },
+]
+keywords = ["GraphKAN", "KAN", "GNN", "drug-discovery", "cheminformatics"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch>=2.1",
+    "torch-geometric>=2.4",
+    "rdkit>=2024.3.1",
+    "duckdb>=0.10",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+wandb = ["wandb>=0.16"]
+dev = [
+    "pytest>=7",
+    "pylint>=3",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+ferroin = "ferroin.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/TashinAhmed/ferroin"
+Paper = "https://openreview.net/forum?id=d5uz4wrYeg"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ferroin"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/ferroin", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501"]
+
+[tool.pylint.messages_control]
+disable = [
+    "import-error",
+    "missing-module-docstring",
+    "too-many-arguments",
+    "too-many-locals",
+    "too-few-public-methods",
+    "import-outside-toplevel",
+]
