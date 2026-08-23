@@ -39,7 +39,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-wandb = ["wandb>=0.16"]
+# gitpython and aiohttp arrive transitively via wandb. GitHub Dependabot flags
+# a chain of High-severity advisories against GitPython <= 3.1.58 (unsafe git
+# option forwarding / git-config section-name injection enabling RCE) that were
+# only fully remediated in 3.1.59, and aiohttp <= 3.14.2 (HTTP request
+# smuggling via WebSocket upgrade, WebSocket frame decompression without a
+# negotiated extension, OOB heap read in the C response parser) remediated in
+# 3.14.3. Floor-pinned here so the lockfile resolves to patched releases.
+wandb = [
+    "wandb>=0.16",
+    "gitpython>=3.1.59",
+    "aiohttp>=3.14.3",
+]
 dev = [
     "pytest>=7",
     "pylint>=3",
